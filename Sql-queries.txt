@@ -1,0 +1,469 @@
+%sql
+-- Check for data quality issues in silver tables
+
+-- Patients data quality
+SELECT 'patients' as table_name,
+       COUNT(*) as total_records,
+       COUNT(CASE WHEN birthDate IS NULL THEN 1 END) as missing_birthdate,
+       COUNT(CASE WHEN gender IS NULL THEN 1 END) as missing_gender
+FROM hl7_hipaa.silver.patients
+
+UNION ALL
+
+-- Claims data quality  
+SELECT 'claims' as table_name,
+       COUNT(*) as total_records,
+       COUNT(CASE WHEN patient_reference IS NULL THEN 1 END) as missing_patient_ref,
+       COUNT(CASE WHEN total IS NULL THEN 1 END) as missing_total_amount
+FROM hl7_hipaa.silver.claims
+
+UNION ALL
+
+-- Encounters data quality
+SELECT 'encounters' as table_name,
+       COUNT(*) as total_records,
+       COUNT(CASE WHEN subject_reference IS NULL THEN 1 END) as missing_subject_ref,
+       COUNT(CASE WHEN `period.start` IS NULL THEN 1 END) as missing_start_date
+FROM hl7_hipaa.silver.encounters;
+
+
+-- Enable Power BI connection in Databricks
+--%sql
+-- Create views for Power BI (more efficient than direct table queries)
+
+
+CREATE OR REPLACE VIEW hl7_hipaa.gold.pbi_patient_dashboard AS
+SELECT 
+    patient_id, 
+    age, 
+    gender, 
+    total_healthcare_cost, 
+    cost_risk_tier, 
+    clinical_complexity_tier, 
+    age_group
+FROM hl7_hipaa.gold.patient_risk_profiles;
+
+
+CREATE OR REPLACE VIEW hl7_hipaa.gold.pbi_provider_performance AS
+SELECT 
+    provider_name, 
+    unique_patients_served, 
+    total_revenue, 
+    revenue_per_patient, 
+    revenue_tier
+FROM hl7_hipaa.gold.provider_performance
+
+
+
+CREATE OR REPLACE VIEW hl7_hipaa.gold.pbi_disease_analytics AS
+SELECT 
+    condition_name, 
+    patients_affected, 
+    total_condition_cost_burden,
+    cost_impact_tier, 
+    prevalence_tier
+FROM hl7_hipaa.gold.disease_analytics
+ORDER BY total_condition_cost_burden DESC;
+
+
+
+CREATE OR REPLACE VIEW hl7_hipaa.gold.pbi_readmission_risk AS
+SELECT 
+    patient_id, 
+    age, 
+    readmissions_30_days, 
+    total_cost,
+    readmission_risk_tier, 
+    comorbidity_score
+FROM hl7_hipaa.gold.readmission_risk_model
+WHERE readmission_risk_tier != 'Low Risk';
+
+
+CREATE OR REPLACE VIEW hl7_hipaa.gold.pbi_executive_summary AS
+SELECT 
+    total_patients,
+    total_encounters, 
+    total_claims,
+    total_healthcare_spend,
+    high_cost_patients,
+    critical_risk_patients,
+    highest_cost_condition,
+    top_revenue_provider
+FROM hl7_hipaa.gold.executive_kpi_dashboard;
+
+
+
+
+WHERE unique_patients_served >= 5;
+
+
+
+-- 11. Patient KPI Profiles Table
+CREATE OR REPLACE TABLE hl7_hipaa.gold.patient_kpi_profiles AS
+SELECT
+  p.patient_id,
+  p.gender,
+  p.birth_date,
+  dp.age_group,
+  em.total_claims,
+  em.total_healthcare_cost,
+  pr.readmissions_30_days,
+  pr.readmission_risk_tier,
+  pr.comorbidity_score,
+  dp.clinical_complexity_tier,
+  dp.cost_risk_tier,
+  dp.total_conditions,
+  dp.total_encounters,
+  ROUND(pr.annual_encounter_rate,2) AS annual_encounter_rate
+FROM hl7_hipaa.gold.dim_patient dp
+JOIN hl7_hipaa.silver.patients_clean p
+  ON dp.patient_id = p.patient_id
+LEFT JOIN (
+  SELECT patient_id, total_claims, total_healthcare_cost
+  FROM (
+    SELECT patient_id, COUNT(*) AS total_claims, SUM(claim_amount) AS total_healthcare_cost
+    FROM hl7_hipaa.gold.vw_healthcare_star_schema
+    GROUP BY patient_id
+  )
+) em
+  ON dp.patient_id = em.patient_id
+LEFT JOIN hl7_hipaa.gold.fact_readmission_risk pr
+  ON dp.patient_id = pr.patient_id;
+
+-- Readmission Risk Model (Gold Layer)
+CREATE OR REPLACE TABLE hl7_hipaa.gold.readmission_risk_model AS
+
+WITH encounter_time_diffs AS (
+  SELECT
+    e.patient_id,
+    e.encounter_id,
+    e.encounter_start_date,
+    LAG(e.encounter_start_date) OVER (
+      PARTITION BY e.patient_id
+      ORDER BY e.encounter_start_date
+    ) AS prev_encounter_date,
+    DATEDIFF(
+      e.encounter_start_date,
+      LAG(e.encounter_start_date) OVER (
+        PARTITION BY e.patient_id
+        ORDER BY e.encounter_start_date
+      )
+    ) AS days_since_last_encounter
+  FROM hl7_hipaa.silver.encounters_clean e
+  WHERE e.encounter_start_date IS NOT NULL
+),
+
+readmission_counts AS (
+  SELECT
+    patient_id,
+    COUNT(
+      CASE
+        WHEN days_since_last_encounter BETWEEN 1 AND 30 THEN 1
+      END
+    ) AS readmissions_30_days
+  FROM encounter_time_diffs
+  GROUP BY patient_id
+),
+
+patient_costs AS (
+  SELECT
+    patient_id,
+    SUM(claim_amount)            AS total_cost,
+    COUNT(*)                  AS total_claims
+  FROM hl7_hipaa.gold.vw_healthcare_star_schema
+  GROUP BY patient_id
+),
+
+patient_encounter_patterns AS (
+  SELECT
+    e.patient_id,
+    p.birth_date,
+    p.gender,
+    YEAR(CURRENT_DATE()) - YEAR(p.birth_date) AS age,
+    COUNT(e.encounter_id)     AS total_encounters,
+    COUNT(DISTINCT DATE(e.encounter_start_date)) AS unique_encounter_dates,
+    COUNT(DISTINCT e.provider_id)                AS provider_count,
+    MIN(e.encounter_start_date) AS first_encounter_date,
+    MAX(e.encounter_start_date) AS last_encounter_date,
+    DATEDIFF(
+      MAX(e.encounter_start_date),
+      MIN(e.encounter_start_date)
+    ) AS care_span_days,
+    pc.total_claims,
+    pc.total_cost,
+    ROUND(
+      COALESCE(pc.total_cost,0)
+      / NULLIF(pc.total_claims,0),2
+    ) AS avg_cost_per_claim,
+    COUNT(DISTINCT cond.condition_description) AS unique_conditions,
+    MAX(
+      CASE
+        WHEN cond.condition_description LIKE '%Diabetes%' THEN 1
+        ELSE 0
+      END
+    ) AS has_diabetes,
+    MAX(
+      CASE
+        WHEN cond.condition_description LIKE '%Hypertension%' THEN 1
+        ELSE 0
+      END
+    ) AS has_hypertension,
+    MAX(
+      CASE
+        WHEN cond.condition_description LIKE '%Anemia%' THEN 1
+        ELSE 0
+      END
+    ) AS has_anemia,
+    MAX(
+      CASE
+        WHEN cond.condition_description LIKE '%Atrial Fibrillation%' THEN 1
+        ELSE 0
+      END
+    ) AS has_afib,
+    MAX(
+      CASE
+        WHEN cond.condition_description LIKE '%kidney%' OR cond.condition_description LIKE '%renal%' THEN 1
+        ELSE 0
+      END
+    ) AS has_kidney_disease
+  FROM hl7_hipaa.silver.encounters_clean e
+  JOIN hl7_hipaa.silver.patients_clean p
+    ON e.patient_id = p.patient_id
+  LEFT JOIN hl7_hipaa.gold.vw_healthcare_star_schema fc
+    ON e.patient_id = fc.patient_id
+  LEFT JOIN hl7_hipaa.silver.conditions_clean cond
+    ON e.patient_id = cond.patient_id
+  LEFT JOIN patient_costs pc
+    ON e.patient_id = pc.patient_id
+  WHERE e.encounter_start_date IS NOT NULL
+  GROUP BY
+    e.patient_id,
+    p.birth_date,
+    p.gender,
+    pc.total_claims,
+    pc.total_cost
+)
+
+SELECT
+  pep.patient_id,
+  pep.age,
+  pep.gender,
+  pep.total_encounters,
+  COALESCE(rc.readmissions_30_days,0) AS readmissions_30_days,
+  pep.total_cost,
+  pep.unique_conditions,
+  
+  -- Readmission risk tier
+  CASE
+    WHEN COALESCE(rc.readmissions_30_days,0) >= 3
+      AND pep.total_cost >= 100000 THEN 'Critical Risk'
+    WHEN COALESCE(rc.readmissions_30_days,0) >= 2
+      OR (pep.total_encounters >= 10 AND pep.unique_conditions >= 5)
+      THEN 'High Risk'
+    WHEN COALESCE(rc.readmissions_30_days,0) >= 1
+      OR (pep.total_encounters >= 5 AND pep.unique_conditions >= 3)
+      THEN 'Medium Risk'
+    ELSE 'Low Risk'
+  END AS readmission_risk_tier,
+  
+  -- Cost risk tier
+  CASE
+    WHEN pep.total_cost >= 500000 THEN 'Extreme Cost'
+    WHEN pep.total_cost >= 100000 THEN 'Very High Cost'
+    WHEN pep.total_cost >= 50000  THEN 'High Cost'
+    WHEN pep.total_cost >= 20000  THEN 'Medium Cost'
+    ELSE 'Low Cost'
+  END AS cost_risk_tier,
+  
+  -- Comorbidity score
+  (pep.has_diabetes
+   + pep.has_hypertension
+   + pep.has_anemia
+   + pep.has_afib
+   + pep.has_kidney_disease
+  ) AS comorbidity_score,
+  
+  -- Annual encounter rate
+  CASE
+    WHEN pep.care_span_days > 0
+      THEN ROUND(pep.total_encounters * 365.0 / pep.care_span_days,2)
+    ELSE pep.total_encounters
+  END AS annual_encounter_rate
+
+FROM patient_encounter_patterns pep
+LEFT JOIN readmission_counts rc
+  ON pep.patient_id = rc.patient_id
+WHERE pep.total_encounters >= 2
+ORDER BY
+  COALESCE(rc.readmissions_30_days,0) DESC,
+  pep.total_cost DESC;
+
+-- Provider Performance (Gold Layer, refactored to use star schema claim costs)
+
+CREATE OR REPLACE TABLE hl7_hipaa.gold.provider_performance AS
+WITH provider_claims AS (
+  SELECT
+    fc.provider_id,
+    dpr.provider_name,
+    COUNT(DISTINCT fc.patient_id)            AS unique_patients_served,
+    COUNT(*)                                AS total_claims_processed,
+    COUNT(DISTINCT fc.service_date_key)     AS unique_service_dates,
+    SUM(fc.claim_amount)                       AS total_revenue,
+    AVG(fc.claim_amount)                       AS avg_claim_amount
+  FROM hl7_hipaa.gold.fact_claims fc
+  INNER JOIN hl7_hipaa.gold.dim_provider dpr
+    ON fc.provider_id = dpr.provider_id
+  GROUP BY
+    fc.provider_id,
+    dpr.provider_name
+),
+provider_conditions AS (
+  SELECT
+    c.provider_id,
+    AVG(cond_counts.condition_count) AS avg_patient_complexity
+  FROM hl7_hipaa.gold.fact_claims c
+  LEFT JOIN (
+    SELECT patient_id, COUNT(*) AS condition_count
+    FROM hl7_hipaa.silver.conditions_clean
+    GROUP BY patient_id
+  ) cond_counts
+    ON c.patient_id = cond_counts.patient_id
+  GROUP BY c.provider_id
+)
+
+SELECT
+  pc.provider_id,
+  pc.provider_name,
+  pc.unique_patients_served,
+  pc.total_claims_processed,
+  pc.unique_service_dates,
+  pc.total_revenue,
+  ROUND(pc.avg_claim_amount,2)             AS avg_claim_amount,
+  COALESCE(pcond.avg_patient_complexity,0)  AS avg_complexity_score,
+  
+  -- Performance tiers
+  CASE
+    WHEN pc.total_revenue >= 1000000 THEN 'High Volume (1M+)'
+    WHEN pc.total_revenue >= 500000  THEN 'Medium-High Volume (500K-1M)'
+    WHEN pc.total_revenue >= 100000  THEN 'Medium Volume (100K-500K)'
+    ELSE 'Low Volume (<100K)'
+  END                                      AS revenue_tier,
+  
+  -- Efficiency metrics
+  ROUND(pc.total_revenue / pc.unique_patients_served,2) AS revenue_per_patient,
+  ROUND(pc.total_claims_processed*1.0/pc.unique_patients_served,2) AS claims_per_patient
+
+FROM provider_claims pc
+LEFT JOIN provider_conditions pcond
+  ON pc.provider_id = pcond.provider_id
+WHERE pc.unique_patients_served >= 5
+ORDER BY pc.total_revenue DESC;
+
+-- Preview top providers
+SELECT
+  provider_name,
+  unique_patients_served,
+  total_revenue,
+  revenue_per_patient,
+  claims_per_patient,
+  avg_complexity_score,
+  revenue_tier
+FROM hl7_hipaa.gold.provider_performance
+ORDER BY total_revenue DESC
+LIMIT 15;
+
+
+-- 9. Disease Analytics Table (fixed to remove encounter_id reference)
+
+CREATE OR REPLACE TABLE hl7_hipaa.gold.disease_analytics AS
+
+WITH cost_data AS (
+  SELECT
+    patient_id,
+    SUM(claim_amount)        AS total_cost,
+    COUNT(*)              AS total_claims,
+    COUNT(DISTINCT service_date_key) AS encounter_count
+  FROM hl7_hipaa.gold.vw_healthcare_star_schema
+  GROUP BY patient_id
+)
+
+SELECT
+  TRIM(cond.condition_description)                                  AS condition_name,
+  COUNT(*)                                                          AS condition_frequency,
+  COUNT(DISTINCT cond.patient_id)                                   AS patients_affected,
+  ROUND(AVG(cd.total_cost),2)                                       AS avg_cost_per_patient,
+  ROUND(SUM(cd.total_cost),2)                                       AS total_condition_cost_burden,
+  ROUND(AVG(cd.encounter_count),2)                                  AS avg_encounters_per_patient,
+  ROUND(AVG(cd.total_claims),2)                                     AS avg_claims_per_patient,
+  ROUND(AVG(YEAR(CURRENT_DATE()) - YEAR(p.birth_date)),1)           AS avg_patient_age,
+  
+  CASE 
+    WHEN AVG(cd.total_cost) >= 100000 THEN 'Very High Cost Impact'
+    WHEN AVG(cd.total_cost) >=  50000 THEN 'High Cost Impact'
+    WHEN AVG(cd.total_cost) >=  20000 THEN 'Medium Cost Impact'
+    ELSE 'Low Cost Impact'
+  END                                                               AS cost_impact_tier,
+  
+  CASE
+    WHEN COUNT(DISTINCT cond.patient_id) >= 100 THEN 'Very Common'
+    WHEN COUNT(DISTINCT cond.patient_id) >=  50 THEN 'Common'
+    WHEN COUNT(DISTINCT cond.patient_id) >=  20 THEN 'Moderate'
+    ELSE 'Rare'
+  END                                                               AS prevalence_tier
+
+FROM hl7_hipaa.silver.conditions_clean cond
+LEFT JOIN hl7_hipaa.silver.patients_clean p
+  ON cond.patient_id = p.patient_id
+LEFT JOIN cost_data cd
+  ON cond.patient_id = cd.patient_id
+
+WHERE TRIM(cond.condition_description) <> ''
+GROUP BY TRIM(cond.condition_description)
+HAVING COUNT(*) >= 5
+ORDER BY total_condition_cost_burden DESC;
+
+
+%sql
+-- Check actual column names in silver tables
+DESCRIBE hl7_hipaa.silver.patients;
+
+%sql
+DESCRIBE hl7_hipaa.silver.claims;
+
+%sql  
+DESCRIBE hl7_hipaa.silver.encounters;
+
+
+%sql
+DESCRIBE hl7_hipaa.silver.conditions;
+
+%sql
+-- Check for data quality issues in silver tables
+
+-- Patients data quality
+SELECT 'patients' as table_name,
+       COUNT(*) as total_records,
+       COUNT(CASE WHEN birthDate IS NULL THEN 1 END) as missing_birthdate,
+       COUNT(CASE WHEN gender IS NULL THEN 1 END) as missing_gender
+FROM hl7_hipaa.silver.patients
+
+UNION ALL
+
+-- Claims data quality  
+SELECT 'claims' as table_name,
+       COUNT(*) as total_records,
+       COUNT(CASE WHEN patient_reference IS NULL THEN 1 END) as missing_patient_ref,
+       COUNT(CASE WHEN total IS NULL THEN 1 END) as missing_total_amount
+FROM hl7_hipaa.silver.claims
+
+UNION ALL
+
+-- Encounters data quality
+SELECT 'encounters' as table_name,
+       COUNT(*) as total_records,
+       COUNT(CASE WHEN subject_reference IS NULL THEN 1 END) as missing_subject_ref,
+       COUNT(CASE WHEN `period.start` IS NULL THEN 1 END) as missing_start_date
+FROM hl7_hipaa.silver.encounters;
+
+
+
