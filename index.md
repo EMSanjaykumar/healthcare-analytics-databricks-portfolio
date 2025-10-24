@@ -8,7 +8,7 @@
 ## 🚀 Turning untapped healthcare claims into actionable cost and risk insights for executives, clinicians & analysts.
 
 ---
-**Quick Links:** [Download Executive Dashboard (PDF)](screenshots/Executive_Summary_Dashboard.pdf) | [linkedin.com/in/skem](https://www.linkedin.com/in/skem/)
+**Quick Links:** [Download Executive Dashboard (PDF)](screenshots/Executive_Summary_Dashboard.pdf) | [LinkedIn][linkedin.com/in/skem](https://www.linkedin.com/in/skem/)
  | [GitHub Repo](https://github.com/EMSanjaykumar/healthcare-analytics-databricks-portfolio)
 
 ---
@@ -196,7 +196,7 @@ display(agg.orderBy(desc("patient_spend")))
 ## Contact and Links
 
 - **Name:** Sanjaykumar Enakarla Mohan
-- **LinkedIn:** [linkedin.com/in/sanjaykem](https://www.linkedin.com/in/sanjaykem)
+- **LinkedIn:** [linkedin.com/in/skem](https://www.linkedin.com/in/skem/)
 - **Email:** [sanjaykumar.em0609@gmail.com](mailto:sanjaykumar.em0609@gmail.com)
 
 ---
