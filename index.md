@@ -66,7 +66,7 @@ Welcome! This portfolio showcases a comprehensive healthcare analytics project b
   ![Blob Storage Containers](screenshots/azure_blob_storage_containers_hd.png)
 - **Databricks Workspace:**  
   ![Main Workspace View](screenshots/workspace_hd.png)
-  ![Workspace Items](screenshots/workspace_items_hd.png)
+  ![Workspace Items](screenshots/workspace_items_hd.png) <!-- Ensure this file exists and matches case/extension! -->
 
 ---
 
@@ -106,11 +106,10 @@ Welcome! This portfolio showcases a comprehensive healthcare analytics project b
 
 ## Sample Databricks Transformation Notebook
 
-Clean HL7 claims and aggregate patient spend
+# Clean HL7 claims and aggregate patient spend
 df = raw_df.filter(raw_df.claim_status == "Valid")
 agg = df.groupBy("patient_id").agg(sum("total_spend").alias("patient_spend"))
 display(agg.orderBy(desc("patient_spend")))
-
 
 
 ---
@@ -133,7 +132,7 @@ display(agg.orderBy(desc("patient_spend")))
 - **[Readmission Outcomes PDF](screenshots/Readmission-Outcomes-Analytics-Dashboard.pdf)**
 
 **Workspace:**  
-![Databricks Workspace](screenshots/workspace_hd.png)
+![Databricks Workspace](screenshots/workspace_items_hd.png) 
 
 **Glossary & Data Dictionary:**  
 [README.md](README.md)
@@ -149,6 +148,7 @@ display(agg.orderBy(desc("patient_spend")))
 
 ## License Disclaimer
 
-_Project licensed under MIT License. Data is de-identified and simulated for demo—no PHI/PII._
+_This portfolio is for demonstration/educational use. Data based on [Kaggle healthcare dataset](https://www.kaggle.com/datasets/drscarlat/fhir-1ksample)—de-identified for public sharing._
+(no PHI/PII)._
 
 ---
