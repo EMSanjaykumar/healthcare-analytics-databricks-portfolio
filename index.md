@@ -157,10 +157,9 @@ display(agg.orderBy(desc("patient_spend")))
 ## Contact and Links
 
 - **Name:** Sanjaykumar Enakarla Mohan
-- **Location:** Overland Park, Kansas, USA
 - **LinkedIn:** [linkedin.com/in/sanjaykem](https://www.linkedin.com/in/sanjaykem)
 - **Email:** sanjaykumar.em0609@gmail.com
-- **Phone:** +1 531-255-2071
+
 
 ---
 
