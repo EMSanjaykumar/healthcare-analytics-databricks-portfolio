@@ -28,7 +28,7 @@
 
 ## About Me
 
-**Healthcare Data & BI Analyst.**  
+**Data & BI Analyst.**  
 5+ years driving value with SQL, Python, Databricks, Azure, and Power BI — blending banking and healthcare analytics.  
 Skilled in ETL, reporting automation, dashboarding, stakeholder communication, and statistical modeling.
 
