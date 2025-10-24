@@ -92,7 +92,6 @@ Enable high-granularity, regulatory-grade analytics on large HL7-format claims f
   ![Resource Group](screenshots/azure_resource_group_hd.png)
   ![Blob Gen2 Containers](screenshots/azure_blob_storage_containers_hd.png)
 - **Databricks Workspace Samples:**  
-  ![Workspace Main](screenshots/workspace_hd.png)
   ![Workspace Items](screenshots/workspace_items_hd.png)
 
 ---
