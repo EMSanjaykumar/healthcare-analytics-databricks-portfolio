@@ -23,7 +23,9 @@ Welcome! This portfolio showcases a full-stack healthcare analytics project deli
 - **Max Claim Amount:** $7,001.71  
 - **Highest Cost Condition:** Viral sinusitis (disorder)
 
-![Executive Dashboard] <img width="3840" height="2052" alt="Genie_Enabled_Dashboard" src="https://github.com/user-attachments/assets/cb61bb18-7e2e-4ac6-98d2-1f797b2fe2db" />
+![Executive Dashboard] 
+
+<img width="4096" height="2188" alt="genie_enabled_dashboard_hd" src="https://github.com/user-attachments/assets/66c576a5-ebd7-446d-89c5-de7597d7f24d" />
 
 
 *[Download full PDF:[Executive_Summary_Dashboard.pdf](https://github.com/user-attachments/files/23112807/Executive_Summary_Dashboard.pdf)*
