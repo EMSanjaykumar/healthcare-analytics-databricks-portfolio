@@ -211,5 +211,5 @@ _Validated on Azure Free Subscription and Databricks Community Edition; all ETL,
 ---
 
 **Interested in Databricks-centric healthcare analytics or want to connect?**  
-[Contact me](mailto:sanjaykumar.em0609@gmail.com) or connect on [LinkedIn](https://linkedin.com/in/sanjaykem).
+[Contact me](mailto:sanjaykumar.em0609@gmail.com) or connect on [linkedin.com/in/skem](https://www.linkedin.com/in/skem/).
 
