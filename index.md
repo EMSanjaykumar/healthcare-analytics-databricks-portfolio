@@ -1,4 +1,4 @@
-# Sanjaykumar Enakarla Mohan — Healthcare Analytics with Databricks & Azure
+# Sanjaykumar Enakarla Mohan — Healthcare Analytics with Azure Databricks
 
 
 **LinkedIn:** [linkedin.com/in/sanjaykem](https://www.linkedin.com/in/sanjaykem)  
