@@ -8,11 +8,12 @@
 ## 🚀 Turning untapped healthcare claims into actionable cost and risk insights for executives, clinicians & analysts.
 
 ---
-**Quick Links:** [Download Executive Dashboard (PDF)](screenshots/Executive_Summary_Dashboard.pdf) | [LinkedIn](https://linkedin.com/in/sanjaykem) | [GitHub Repo](https://github.com/EMSanjaykumar/healthcare-analytics-databricks-portfolio)
+**Quick Links:** [Download Executive Dashboard (PDF)](screenshots/Executive_Summary_Dashboard.pdf) | [linkedin.com/in/skem](https://www.linkedin.com/in/skem/)
+ | [GitHub Repo](https://github.com/EMSanjaykumar/healthcare-analytics-databricks-portfolio)
 
 ---
 
-**LinkedIn:** [linkedin.com/in/sanjaykem](https://www.linkedin.com/in/sanjaykem)  
+**LinkedIn:** [linkedin.com/in/skem](https://www.linkedin.com/in/skem/)
 **Email:** [sanjaykumar.em0609@gmail.com](mailto:sanjaykumar.em0609@gmail.com)
 
 ---
