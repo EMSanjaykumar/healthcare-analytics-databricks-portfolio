@@ -91,7 +91,7 @@ Enable high-granularity, regulatory-grade analytics on large HL7-format claims f
 - **Azure Resource Groups & Storage:**  
   ![Resource Group](screenshots/azure_resource_group_hd.png)
   ![Blob Gen2 Containers](screenshots/azure_blob_storage_containers_hd.png)
-- **Databricks Workspace Samples:**  
+- **Databricks Workspace Sample:**  
   ![Workspace Items](screenshots/workspace_items_hd.png)
 
 ---
@@ -121,10 +121,11 @@ Enable high-granularity, regulatory-grade analytics on large HL7-format claims f
 
 ## Sample Databricks Transformation Notebook
 
-#Clean HL7 claims and aggregate patient spend
+# Clean HL7 claims and aggregate patient spend
 df = raw_df.filter(raw_df.claim_status == "Valid")
 agg = df.groupBy("patient_id").agg(sum("total_spend").alias("patient_spend"))
 display(agg.orderBy(desc("patient_spend")))
+
 
 
 ---
