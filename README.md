@@ -39,17 +39,29 @@ I’m a **Data/Business Analyst (Healthcare & BFSI)** with 5+ years experience t
 
 [Disease_Condition_Burden_Dashboard.pdf](https://github.com/user-attachments/files/23110367/Disease_Condition_Burden_Dashboard.pdf)
 
+
 <img width="3840" height="2052" alt="Dashboard_Dataset" src="https://github.com/user-attachments/assets/b714ba6c-4039-4c3c-ad71-a505a61e5e4f" />
+
 
 <img width="3840" height="2052" alt="Workspace" src="https://github.com/user-attachments/assets/fa73e919-937d-4123-bf5c-cda8ed50befe" />
 
+
 [Readmission & Outcomes Analytics Dashboard.pdf](https://github.com/user-attachments/files/23110366/Readmission.Outcomes.Analytics.Dashboard.pdf)
+
 
 [Provider_Performance_Analysis.pdf](https://github.com/user-attachments/files/23110365/Provider_Performance_Analysis.pdf)
 
+
 [Patient_Risk_Comorbidity_Analysis_Dashbboard.pdf](https://github.com/user-attachments/files/23110364/Patient_Risk_Comorbidity_Analysis_Dashbboard.pdf)
 
+
+
+**AI/BI- Genie Enabled Dashboard** 
+
+
 <img width="3840" height="2052" alt="Genie_Enabled_Dashboard" src="https://github.com/user-attachments/assets/8b576ca2-5528-4c75-977a-8483a1812477" />
+
+
 
 [Executive_Summary_Dashboard.pdf](https://github.com/user-attachments/files/23110361/Executive_Summary_Dashboard.pdf)
 
@@ -60,7 +72,11 @@ I’m a **Data/Business Analyst (Healthcare & BFSI)** with 5+ years experience t
 ## 🛠 Tech & Highlights
 
 
+
 <img width="1344" height="768" alt="hl7_data_pipeline" src="https://github.com/user-attachments/assets/50aacc62-0dea-4989-a7af-685f71488439" />
+
+
+
 
 
 - Azure Databricks (Bronze-Silver-Gold Medallion architecture)
@@ -68,13 +84,19 @@ I’m a **Data/Business Analyst (Healthcare & BFSI)** with 5+ years experience t
 - Regulatory-compliant data transformation and reporting
 - Data dictionaries & documentation
 
+ 
+
 
 
 
 <img width="3840" height="2052" alt="Azure_Blob_Gen2_Storage_Containers" src="https://github.com/user-attachments/assets/5f8e8b94-bd31-4919-8254-6ce5be72387b" />
 
 
+
+
 <img width="3840" height="2052" alt="Azure_Resource_Group" src="https://github.com/user-attachments/assets/ccc15d80-39c3-47c3-b6c6-c4a749aa88d9" />
+
+
 
 
 ---
