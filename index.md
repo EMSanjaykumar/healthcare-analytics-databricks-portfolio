@@ -25,6 +25,7 @@
 
 ## Table of Contents
 - [About Me](#about-me)
+- [End-to-End Analytics Delivery](#end-to-end-analytics-delivery)
 - [Featured Project Scenarios](#featured-project-scenarios)
 - [Executive Dashboard](#executive-dashboard)
 - [Architecture and Cloud Setup](#architecture-and-cloud-setup)
@@ -40,11 +41,50 @@
 
 ## About Me
 
-**Data & BI Analyst** with 5+ years' experience in banking/financial and US healthcare analytics.
+**Business & Data Analyst** with 5+ years' experience in banking/financial and US healthcare analytics.
 
 - **Expert in:** Databricks, Azure, SQL, Python, HL7/FHIR healthcare data
 - **Core Skills:** ETL, dashboard automation, stakeholder reporting, Delta Lake pipelines, audit/compliance analytics
 - **Certifications:** Databricks Fundamentals, Microsoft Power BI Data Analyst (PL-300), Google Data Analytics
+
+---
+
+## End-to-End Analytics Delivery
+
+> **Requirements → Architecture → ETL → Dashboards → Business Value**
+
+Healthcare organizations often struggle with fragmented claims data, delayed reports, and lack of unified visibility. This project solves that by delivering a single analytics ecosystem on **Azure Databricks**—transforming raw HL7 claims into governed Delta Lake tables and live executive dashboards for data-driven decisions.
+
+**The Project Flow:**
+
+- **Define the Challenge:** Clarify critical healthcare questions—what's driving cost, risk, and readmissions?
+- **Map Requirements:** Identify key KPIs (cost per patient, readmission rates, provider performance, high-risk cohorts) and reporting needs.
+- **Ingest Data:** Land raw HL7 claims (JSON, CSV, Parquet) into Azure cloud storage and DBFS.
+- **Transform with Medallion Architecture:**
+  - **Bronze:** Raw claims ingested with full fidelity, schema validated.
+  - **Silver:** Cleaned, standardized, and integrity-checked data.
+  - **Gold:** Analytics-ready tables with KPIs—patient cost, risk scores, readmissions, provider metrics, and condition trends.
+- **Build Dashboards:** Create interactive Genie dashboards in Databricks for executives, finance, and clinical teams.
+- **Validate & Iterate:** Ensure dashboards answer real organizational questions and continuously refine based on feedback.
+- **Drive Impact:** Enable rapid intervention for high-risk patients, cost control, and better clinical outcomes.
+
+---
+
+![End-to-End Databricks Analytics Pipeline] <img width="1536" height="1024" alt="hl7_end_to_end_architecture_updated" src="https://github.com/user-attachments/assets/43558520-bf22-4347-b0ce-d74af9b40cd1" />
+
+*Visual: Full analytics journey from raw HL7 data to Databricks-powered dashboards.*
+
+---
+
+**Business Outcomes:**
+
+- Single source of truth for claims analytics
+- 70% reduction in manual reporting effort
+- Faster, more informed decision-making for leadership and care teams
+
+---
+
+**All transformation, analytics, and dashboards built entirely in Databricks and Azure—no third-party ETL tools required.**
 
 ---
 
@@ -115,9 +155,11 @@ Azure Databricks (Free/Community), real HL7 test data
 
 - **Medallion Architecture:** Bronze/Silver/Gold (all Delta Lake in Databricks)
 - **End-to-End HL7 Dataflow:**  
-  ![HL7 End-to-End Architecture](screenshots/hl7_end_to_end_architecture_hd.png)
+  ![HL7 End-to-End Architecture] <img width="2210" height="1272" alt="medallion_architecture_v2" src="https://github.com/user-attachments/assets/95bc94af-df18-468a-bd9c-0452256d164e" />
+
 - **ETL Pipeline:**  
-  ![HL7 Data Pipeline](screenshots/hl7_data_pipeline_hd.png)
+  ![HL7 Data Pipeline] <img width="1344" height="768" alt="Ai_Bi_genie Space" src="https://github.com/user-attachments/assets/eb65b76f-6837-4c94-becb-fdb0d787f3f2" />
+
 - **Azure Resource Groups/Blob Storage:**  
   ![Resource Group](screenshots/azure_resource_group_hd.png)
   ![Blob Gen2 Containers](screenshots/azure_blob_storage_containers_hd.png)
