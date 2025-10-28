@@ -13,9 +13,6 @@
 
 ---
 
-**LinkedIn:** [linkedin.com/in/skem](https://www.linkedin.com/in/skem/)
-**Email:** [sanjaykumar.em0609@gmail.com](mailto:sanjaykumar.em0609@gmail.com)
-
 ---
 
 > **End-to-end analytics from HL7 data landing to clinical cost dashboards — built 100% on Databricks and Azure, from ETL pipelines to live Genie dashboards.**
@@ -24,7 +21,6 @@
 ---
 
 ## Table of Contents
-- [About Me](#about-me)
 - [End-to-End Analytics Delivery](#end-to-end-analytics-delivery)
 - [Featured Project Scenarios](#featured-project-scenarios)
 - [Executive Dashboard](#executive-dashboard)
@@ -36,16 +32,6 @@
 - [Documentation](#documentation)
 - [Contact and Links](#contact-and-links)
 - [License and Dataset Attribution](#license-and-dataset-attribution)
-
----
-
-## About Me
-
-**Business & Data Analyst** with 5+ years' experience in banking/financial and US healthcare analytics.
-
-- **Expert in:** Databricks, Azure, SQL, Python, HL7/FHIR healthcare data
-- **Core Skills:** ETL, dashboard automation, stakeholder reporting, Delta Lake pipelines, audit/compliance analytics
-- **Certifications:** Databricks Fundamentals, Microsoft Power BI Data Analyst (PL-300), Google Data Analytics
 
 ---
 
